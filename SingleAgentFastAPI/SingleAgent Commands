@@ -1,0 +1,32 @@
+1. #Run Single Agent for Assignment Generation
+python3 SingleAgentFastAPI/rr_assignment_min.py
+
+
+2. #Run Dummy LMS
+python3 lms_app.py
+
+
+2. #Curl Command
+json_payload='{
+  "course": "Satellite Engineering",
+  "course_toc": [
+    {
+      "topic": "Orbital Mechanics",
+      "sub_topics": ["Kepler'\''s Laws", "Orbital Elements", "Orbital Perturbations"]
+    },
+    {
+      "topic": "Satellite Subsystems",
+      "sub_topics": ["Power Systems", "Thermal Control", "Attitude Control"]
+    }
+  ],
+  "topic": "Satellite Subsystems",
+  "sub_topics": ["Power Systems", "Thermal Control"],
+  "assignment_meta_id": "assign-12345"
+}'
+
+curl -X POST http://localhost:3000/generate_assignments \
+  -H "Content-Type: application/json" \
+  -d "$json_payload"
+
+
+
