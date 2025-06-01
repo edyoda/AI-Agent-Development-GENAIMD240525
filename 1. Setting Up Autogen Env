@@ -5,5 +5,5 @@ python3 -m venv autogenenv
 source autogenenv/bin/activate
 
 #Install packages
-pip3 install -r requirements_autogen
+pip3 install -r requirements_autogen.txt
 
