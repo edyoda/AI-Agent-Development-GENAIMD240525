@@ -1,3 +1,5 @@
+Ensure python version 3.12
+
 # SetUp Virtual Env
 python3 -m venv autogenenv
 
