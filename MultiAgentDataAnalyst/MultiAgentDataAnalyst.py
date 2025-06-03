@@ -39,9 +39,10 @@ def percentage_change_tool(start: float, end: float) -> float:
     return ((end - start) / start) * 100
 
 
-#model_client = OpenAIChatCompletionClient(model="gpt-4o", api_key=os.getenv('OPENAI_API_KEY'),)
+model_client = OpenAIChatCompletionClient(model="gpt-4o", api_key=os.getenv('OPENAI_API_KEY'),)
 
 # Using a more creative temperature for the deepseek model
+'''
 model_client = OpenAIChatCompletionClient(
     model="deepseek-chat",
     temperature=0.85,
@@ -60,7 +61,7 @@ model_client = OpenAIChatCompletionClient(
         "family": "deepseek",
     }
 )
-
+'''
 
 planning_agent = AssistantAgent(
     "PlanningAgent",
