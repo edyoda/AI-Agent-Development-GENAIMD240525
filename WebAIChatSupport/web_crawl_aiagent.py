@@ -1,37 +1,13 @@
-
 import requests, json
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-
 import re
 from typing import List
-
 import aiofiles
 import aiohttp
 from autogen_core.memory import Memory, MemoryContent, MemoryMimeType
-
 from playwright.sync_api import sync_playwright
 from playwright.async_api import async_playwright
-
-def extract_urls_playwright(domain):
-    urls = set()
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.goto(domain)
-        page.wait_for_load_state("networkidle")
-
-        links = page.query_selector_all("a[href]")
-        for link in links:
-            href = link.get_attribute("href")
-            if href and href.startswith("/"):
-                href = urljoin(domain, href)
-            if href and href.startswith(domain):
-                urls.add(href)
-
-        browser.close()
-    return list(urls)
-
 
 class SimpleDocumentIndexer:
     """Basic document indexer for AutoGen Memory."""
@@ -168,10 +144,7 @@ async def index_documents_if_needed() -> None:
     
     indexer = SimpleDocumentIndexer(memory=rag_memory)
     
-    sources = [
-        "https://www.edyoda.com/micro-degree/business-analyst-micro-degree",
-        "https://www.edyoda.com/micro-degree/multi-cloud-devops-career-track-micro-degree",
-    ]
+    sources = filtered_urls
     
     chunks = await indexer.index_documents(sources)
     print(f"Successfully indexed {chunks} chunks from {len(sources)} documents")
@@ -203,13 +176,6 @@ async def check_and_index_alternative() -> None:
         print("Starting document indexing...")
         indexer = SimpleDocumentIndexer(memory=rag_memory)
         
-        '''
-        sources = [
-            "https://www.edyoda.com/micro-degree/business-analyst-micro-degree",
-            "https://www.edyoda.com/micro-degree/multi-cloud-devops-career-track-micro-degree",
-        ]
-        '''
-
         sources = filtered_urls
         
         chunks = await indexer.index_documents(sources)
@@ -243,9 +209,12 @@ async def main():
         print("\n" + "="*50)
         print("Starting RAG Assistant Query...")
         print("="*50)
-        
+
+        print("What do you want to know about courses of EdYoda? : ")
+        asked_question = input()
         stream = rag_assistant.run_stream(
-            task="What will I learn in robotics course?Give me the URL too for registering"
+            #task="What will I learn in robotics course? Also, include the source URL from where the answer was found."
+            task = asked_question
         )
         await Console(stream)
 

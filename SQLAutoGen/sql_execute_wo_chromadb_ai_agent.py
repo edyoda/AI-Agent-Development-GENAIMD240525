@@ -176,14 +176,14 @@ The query will be automatically executed and results will be shown to the user.
     
     async def query(self, natural_language_question: str):
         """Process a natural language question and return SQL results."""
-        print(f"🤔 Processing: {natural_language_question}")
+        print(f"Processing: {natural_language_question}")
         print("-" * 60)
         
         # Get the assistant's response
         response = await self.assistant.run(task=natural_language_question)
         
         # Print the assistant's explanation
-        print("🤖 Assistant Response:")
+        print("Assistant Response:")
         print(response.messages[-1].content)
         print()
         
@@ -200,17 +200,17 @@ The query will be automatically executed and results will be shown to the user.
             result = self.query_executor.execute_query(sql_query)
             
             if result['success']:
-                print("✅ Query executed successfully!")
-                print(f"📊 Found {result['row_count']} rows")
+                print("Query executed successfully!")
+                print(f"Found {result['row_count']} rows")
                 print()
                 
                 if result['row_count'] > 0:
-                    print("📋 Results:")
+                    print("Results:")
                     print(result['formatted_table'])
                     print()
                     
                     if result['row_count'] > 10:
-                        print(f"💡 Note: Showing all {result['row_count']} results.")
+                        print(f"Note: Showing all {result['row_count']} results.")
                 else:
                     print("📭 No results found for this query.")
                     
@@ -307,7 +307,7 @@ async def main():
     # Setup
     db_path = "simple_company.db"
     
-    print("🚀 Setting up Simple SQL Natural Language Agent")
+    print("Setting up Simple SQL Natural Language Agent")
     print("=" * 60)
     
     # Create sample database
@@ -329,11 +329,11 @@ async def main():
             "Who are the highest paid employees?"
         ]
         
-        print("\n📋 Running example queries:")
+        print("\n Running example queries:")
         print("=" * 60)
         
         for question in questions:
-            print(f"\n❓ Question: {question}")
+            print(f"\n Question: {question}")
             await agent.query(question)
             input("\nPress Enter to continue to next question...")
         
@@ -343,7 +343,7 @@ async def main():
         print("-" * 60)
         
         while True:
-            user_question = input("\n❓ Your question: ").strip()
+            user_question = input("\nYour question: ").strip()
             if user_question.lower() in ['quit', 'exit', 'q']:
                 print("👋 Goodbye!")
                 break
@@ -352,19 +352,19 @@ async def main():
                 await agent.query(user_question)
     
     except Exception as e:
-        print(f"❌ Error in main: {e}")
+        print(f"Error in main: {e}")
 
 
 if __name__ == "__main__":
     # Check for OpenAI API key
     if not os.getenv("OPENAI_API_KEY"):
-        print("❌ Please set OPENAI_API_KEY environment variable")
+        print("Please set OPENAI_API_KEY environment variable")
         print("Example: export OPENAI_API_KEY='your-api-key-here'")
         exit(1)
     
     # Required packages
-    print("📦 Required packages: autogen-agentchat autogen-ext openai pandas")
-    print("💡 Install with: pip install autogen-agentchat autogen-ext[openai] pandas")
+    print("Required packages: autogen-agentchat autogen-ext openai pandas")
+    print("Install with: pip install autogen-agentchat autogen-ext[openai] pandas")
     print()
     
     asyncio.run(main())

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Skill Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 35px;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .skills-input-container {
+            position: relative;
+        }
+
+        .skills-help {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .difficulty-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .difficulty-option {
+            position: relative;
+        }
+
+        .difficulty-radio {
+            display: none;
+        }
+
+        .difficulty-label {
+            display: block;
+            padding: 12px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            background: #f8f9fa;
+        }
+
+        .difficulty-radio:checked + .difficulty-label {
+            border-color: #667eea;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .difficulty-label:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 25px;
+            border-left: 6px solid #667eea;
+            animation: slideIn 0.6s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .question-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .question-card p {
+            color: #495057;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 1.05em;
+        }
+
+        .answer-section {
+            margin-top: 25px;
+        }
+
+        .loading {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 1px solid #90caf9;
+            color: #1565c0;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border: 1px solid #66bb6a;
+            color: #2e7d32;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            animation: slideIn 0.5s ease;
+            font-weight: 500;
+        }
+
+        .feedback-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 25px;
+            border-left: 6px solid #28a745;
+            animation: slideIn 0.6s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feedback-card h3 {
+            color: #28a745;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+        }
+
+        .score-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .feedback-text {
+            color: #495057;
+            line-height: 1.8;
+            font-size: 1.05em;
+            white-space: pre-line;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .evaluation-loading {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .question-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .meta-item {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .secondary-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            margin-top: 15px;
+        }
+
+        .secondary-btn:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            .difficulty-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .question-meta {
+                justify-content: center;
+            }
+        }
+	.course-recommendation {
+	    margin-bottom: 15px;
+	    padding: 15px;
+	    background: white;
+	    border-radius: 8px;
+	    border-left: 4px solid #667eea;
+	}
+
+	.course-recommendation h4 {
+	    color: #333;
+	    margin-bottom: 10px;
+	    font-size: 1.2em;
+	}
+
+	.course-recommendation p {
+	    margin-bottom: 8px;
+	    line-height: 1.6;
+	}
+
+	.course-recommendation a {
+	    color: #667eea;
+	    text-decoration: none;
+	    font-weight: 600;
+	}
+
+	.course-recommendation a:hover {
+	    text-decoration: underline;
+	}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AI-Powered Skill Quiz</h1>
+        <p class="subtitle">Test your expertise with dynamically generated questions</p>
+        
+        <div id="quiz-form">
+            <div class="form-group">
+                <label for="domain">Domain:</label>
+                <select id="domain" required>
+                    <option value="">Select a domain</option>
+                    <option value="GenAI">Generative AI</option>
+                    <option value="Cloud">Cloud Computing</option>
+                    <option value="DevOps">DevOps</option>
+                    <option value="Drone">Drone Technology</option>
+                    <option value="Robotics">Robotics</option>
+                    <option value="Data Engineering">Data Engineering</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Space Technology">Space Technology</option>
+                    <option value="Analytics">Analytics</option>
+                    <option value="Business">Business</option>
+                    <option value="Management">Management</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="skills">Skills:</label>
+                <div class="skills-input-container">
+                    <input type="text" id="skills" placeholder="e.g., Machine Learning, PyTorch, Transformers" required>
+                    <p class="skills-help">Enter relevant skills separated by commas</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Difficulty Level:</label>
+                <div class="difficulty-group">
+                    <div class="difficulty-option">
+                        <input type="radio" id="beginner" name="difficulty" value="beginner" class="difficulty-radio">
+                        <label for="beginner" class="difficulty-label">🌱 Beginner</label>
+                    </div>
+                    <div class="difficulty-option">
+                        <input type="radio" id="intermediate" name="difficulty" value="intermediate" class="difficulty-radio" checked>
+                        <label for="intermediate" class="difficulty-label">⚡ Intermediate</label>
+                    </div>
+                    <div class="difficulty-option">
+                        <input type="radio" id="advanced" name="difficulty" value="advanced" class="difficulty-radio">
+                        <label for="advanced" class="difficulty-label">🔥 Advanced</label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="getQuestion()" id="get-question-btn">🎯 Generate Question</button>
+        </div>
+
+        <div id="question-section" class="hidden">
+            <div class="question-card">
+                <div class="question-meta">
+                    <span class="meta-item" id="question-domain"></span>
+                    <span class="meta-item" id="question-skills"></span>
+                    <span class="meta-item" id="question-difficulty"></span>
+                </div>
+                <h3>💡 Question:</h3>
+                <p id="question-text"></p>
+                
+                <div class="answer-section">
+                    <div class="form-group">
+                        <label for="answer">Your Answer:</label>
+                        <textarea id="answer" rows="6" placeholder="Provide a detailed answer demonstrating your understanding..."></textarea>
+                    </div>
+                    <button onclick="submitAnswer()" id="submit-answer-btn">📝 Submit Answer</button>
+                    <button onclick="getNewQuestion()" class="secondary-btn">🔄 Get New Question</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="feedback-section" class="hidden">
+            <div class="feedback-card">
+                <h3>
+                    🤖 AI Evaluation
+                    <span class="score-badge" id="ai-score">
+                        ⭐ <span id="score-value">-</span>/10
+                    </span>
+                </h3>
+                <div class="feedback-text" id="ai-feedback-text"></div>
+                <button onclick="getNewQuestion()">🎯 Try Another Question</button>
+            </div>
+        </div>
+
+	<div id="recommendations-section" class="hidden">
+	    <div class="feedback-card">
+		<h3>📚 Recommended Courses</h3>
+		<div class="feedback-text" id="course-recommendations-text"></div>
+		<button onclick="getNewQuestion()">🎯 Try Another Question</button>
+	    </div>
+	</div>
+
+
+        <div id="message" class="hidden"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '';
+        let currentQuestion = null;
+
+        // Load domains dynamically from backend
+        async function loadDomains() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/domains`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const domainSelect = document.getElementById('domain');
+                    
+                    // Clear existing options except the first one
+                    while (domainSelect.children.length > 1) {
+                        domainSelect.removeChild(domainSelect.lastChild);
+                    }
+                    
+                    // Add domains from backend
+                    data.domains.forEach(domain => {
+                        const option = document.createElement('option');
+                        option.value = domain;
+                        option.textContent = domain;
+                        domainSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.log('Using fallback domains');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', loadDomains);
+
+        async function getQuestion() {
+            const domain = document.getElementById('domain').value;
+            const skills = document.getElementById('skills').value;
+            const difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            
+            if (!domain || !skills) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('get-question-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span>Generating Question...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/get-question`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        domain: domain,
+                        skills: skills.split(',').map(s => s.trim()).filter(s => s.length > 0),
+                        difficulty_level: difficulty
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                currentQuestion = data;
+                displayQuestion(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(`Failed to generate question: ${error.message}. Please check if the backend is running.`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎯 Generate Question';
+            }
+        }
+
+        function displayQuestion(questionData) {
+            document.getElementById('question-domain').textContent = questionData.domain;
+            document.getElementById('question-skills').textContent = questionData.skills.join(', ');
+            document.getElementById('question-difficulty').textContent = questionData.difficulty_level.charAt(0).toUpperCase() + questionData.difficulty_level.slice(1);
+            document.getElementById('question-text').textContent = questionData.question;
+            document.getElementById('answer').value = '';
+            
+            document.getElementById('quiz-form').classList.add('hidden');
+            document.getElementById('question-section').classList.remove('hidden');
+            document.getElementById('feedback-section').classList.add('hidden');
+            hideMessage();
+        }
+
+        async function submitAnswer() {
+            const answer = document.getElementById('answer').value.trim();
+            
+            if (!answer) {
+                showMessage('Please enter an answer', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('submit-answer-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span>AI Evaluating...';
+
+            // Show evaluation loading message
+            showMessage('<div class="evaluation-loading"><span class="loading-spinner"></span>🤖 AI is carefully evaluating your answer... This may take a moment.</div>', 'loading');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/submit-answer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question_id: currentQuestion.id,
+                        question_text: currentQuestion.question,
+                        answer: answer,
+                        domain: currentQuestion.domain,
+                        skills: currentQuestion.skills
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Hide question section and show feedback
+                document.getElementById('question-section').classList.add('hidden');
+               
+ 
+	        // Show both feedback and recommendations
+        	document.getElementById('feedback-section').classList.remove('hidden');
+        	document.getElementById('recommendations-section').classList.remove('hidden');
+
+                // Display AI feedback and recommendations
+        	displayAIFeedback(data.ai_feedback, data.ai_score);
+        	displayCourseRecommendations(data.course_recommendations);
+        	hideMessage();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(`Failed to submit answer: ${error.message}. Please try again.`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '📝 Submit Answer';
+            }
+        }
+
+	function displayCourseRecommendations(recommendations) {
+	    const container = document.getElementById('course-recommendations-text');
+
+	    if (!recommendations || recommendations === "Course recommendation system is not available. Please contact support.") {
+		container.innerHTML = '<p>No course recommendations available at this time. Please try again later.</p>';
+		return;
+	    }
+
+	    // Format the recommendations (assuming they come as markdown text)
+	    const formatted = recommendations
+		.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold
+		.replace(/\*(.*?)\*/g, '<em>$1</em>') // italic
+		.replace(/\n\s*\n/g, '</div><div class="course-recommendation">') // paragraphs
+		.replace(/\n/g, '<br>') // line breaks
+		.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>'); // links
+
+	    container.innerHTML = `<div class="course-recommendation">${formatted}</div>`;
+	}
+
+        function displayAIFeedback(feedback, score) {
+            document.getElementById('ai-feedback-text').textContent = feedback || 'No detailed feedback available.';
+            document.getElementById('score-value').textContent = score || 'N/A';
+            
+            // Update score badge color based on score
+            const scoreBadge = document.getElementById('ai-score');
+            if (score >= 9) {
+                scoreBadge.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                scoreBadge.style.boxShadow = '0 4px 15px rgba(40, 167, 69, 0.4)';
+            } else if (score >= 7) {
+                scoreBadge.style.background = 'linear-gradient(45deg, #17a2b8, #20c997)';
+                scoreBadge.style.boxShadow = '0 4px 15px rgba(23, 162, 184, 0.4)';
+            } else if (score >= 5) {
+                scoreBadge.style.background = 'linear-gradient(45deg, #ffc107, #fd7e14)';
+                scoreBadge.style.boxShadow = '0 4px 15px rgba(255, 193, 7, 0.4)';
+            } else if (score >= 3) {
+                scoreBadge.style.background = 'linear-gradient(45deg, #fd7e14, #dc3545)';
+                scoreBadge.style.boxShadow = '0 4px 15px rgba(253, 126, 20, 0.4)';
+            } else {
+                scoreBadge.style.background = 'linear-gradient(45deg, #dc3545, #6f42c1)';
+                scoreBadge.style.boxShadow = '0 4px 15px rgba(220, 53, 69, 0.4)';
+            }
+        }
+
+        function getNewQuestion() {
+            document.getElementById('quiz-form').classList.remove('hidden');
+            document.getElementById('question-section').classList.add('hidden');
+            document.getElementById('feedback-section').classList.add('hidden');
+	    document.getElementById('recommendations-section').classList.add('hidden');
+            hideMessage();
+            currentQuestion = null;
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = text;
+            messageDiv.className = type;
+            messageDiv.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            document.getElementById('message').classList.add('hidden');
+        }
+
+        // Add some example skills based on domain selection
+        document.getElementById('domain').addEventListener('change', function() {
+            const domain = this.value;
+            const skillsInput = document.getElementById('skills');
+            
+            const domainSkills = {
+                'GenAI': 'LLM, Transformers, Prompt Engineering, RAG, Fine-tuning',
+                'Cloud': 'AWS, Azure, Docker, Kubernetes, Microservices',
+                'DevOps': 'CI/CD, Jenkins, Terraform, Ansible, Docker',
+                'Drone': 'Flight Control, Autopilot, Computer Vision, Navigation',
+                'Robotics': 'ROS, Computer Vision, Motion Planning, Sensors',
+                'Data Engineering': 'ETL, Apache Spark, Kafka, Data Pipelines, SQL',
+                'Cybersecurity': 'Penetration Testing, SIEM, Incident Response, Risk Assessment',
+                'Space Technology': 'Satellite Systems, Orbital Mechanics, Mission Planning',
+                'Analytics': 'Machine Learning, Statistics, Data Visualization, Python',
+                'Business': 'Strategy, Operations, Finance, Marketing, Innovation',
+                'Management': 'Leadership, Project Management, Team Building, Agile'
+            };
+            
+            if (domainSkills[domain]) {
+                skillsInput.placeholder = `e.g., ${domainSkills[domain]}`;
+            }
+        });
+    </script>
+</body>
+</html>
