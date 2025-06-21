@@ -268,7 +268,7 @@ async def index_edyoda_courses():
 
 async def get_course_recommendations(feedback: str, domain: str, skills: List[str], score: int) -> str:
     """Get course recommendations based on evaluation feedback."""
-    global course_recommendation_agent
+    global course_recommendation_agent, rag_memory
     
     if not course_recommendation_agent:
         return "Course recommendation system is not available. Please contact support."
@@ -276,22 +276,47 @@ async def get_course_recommendations(feedback: str, domain: str, skills: List[st
     try:
         skills_text = ", ".join(skills)
         
+        # First, retrieve relevant course information from memory
+        query_text = f"{domain} {skills_text} course training"
+        memory_results = await rag_memory.query(query_text)
+        
+        # Extract source URLs from memory results
+        source_urls = []
+        course_content = []
+        
+        for result in memory_results:
+            if hasattr(result, 'metadata') and 'source' in result.metadata:
+                source_url = result.metadata['source']
+                if source_url not in source_urls:
+                    source_urls.append(source_url)
+                    course_content.append(f"Course: {source_url}\nContent: {result.content[:500]}...")
+        
+        course_context = "\n\n".join(course_content)
+        
         # Create a comprehensive prompt for course recommendations
         recommendation_prompt = f"""
-Based on the following skill assessment results, please recommend relevant EdYoda courses for career growth:
+Based on the following skill assessment results and available EdYoda courses, please recommend relevant courses for career growth:
 
 **Domain:** {domain}
 **Skills Assessed:** {skills_text}
 **Assessment Score:** {score}/10
 **Detailed Feedback:** {feedback}
 
+**Available Course Information:**
+{course_context}
+
+**Available Course URLs:**
+{chr(10).join(source_urls)}
+
 **Task:** 
 Please recommend 2-4 EdYoda courses that would help improve the identified skill gaps and advance the user's career in {domain}. For each recommendation:
 
-1. Course name and URL (if available)
+1. **Course name and EXACT URL** (use the URLs provided above)
 2. How it addresses the specific skill gaps mentioned in the feedback
 3. Expected learning outcomes
 4. Career benefits and growth opportunities
+
+**IMPORTANT:** Always include the complete course URL from the list above for each recommended course.
 
 Focus on courses that are most relevant to the weaknesses identified in the assessment feedback.
 """
@@ -311,6 +336,7 @@ Focus on courses that are most relevant to the weaknesses identified in the asse
     except Exception as e:
         print(f"Error getting course recommendations: {e}")
         return f"Unable to generate course recommendations at this time. Please try again later. Error: {str(e)}"
+
 
 # Database initialization
 def init_db():
