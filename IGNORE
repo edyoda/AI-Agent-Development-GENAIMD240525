@@ -258,7 +258,7 @@
     {
       "cell_type": "code",
       "source": [
-        "!pip install pyautogen[chromadb]"
+        "!pip install ag2[chromadb]"
       ],
       "metadata": {
         "id": "3DohWiJKX2R2"
