@@ -11,7 +11,7 @@ This Chatbot Application enables users to upload PDF Document and get respose fo
 - ```Openai Embeddings``` model was used for the purpose of embeddings and these vector were then indexed and stored in ```Pinecone``` vector database.
 - User can upload multiple documents at a given time to the Pinecone vector database. Once ready, the chatbot is ready to answer user queries based on the document and the LLM option selected.
 - Top 2 document are fetched from the Pinecone vector store for each user query and the response is generated based on user selected Large Language Model. 
-- ```load_qa_chain``` from Langchain's chains.question_answering module was used in this for the purpose of simplicity. There can be other way, where I could manually write the prompt as well but for the purpose of simplity I have used load_qa_chain from langchain. 
+- ```load_qa_chain``` from Langchain's chains.question_answering module was used in this for the purpose of simplicity. There can be other way, where I could manually write the prompt as well but for the purpose of simplity I have used load_qa_chain from langchain. **This is modified in the latest commit** 
 - ```chat history``` is also maintained in the state of the application. Currently, chathistory is not considered when user ask follow up questions. User can view the chat history right below the response area. 
 
 
