@@ -32,14 +32,7 @@ Run below command in your terminal
 
     ```python 
     # clone the github branch
-    git clone https://github.com/AnkitBaliyan1/chatbot-rag-AskThePDF.git
-
-
-    # checkout to the master branch 
-    git checkout master
-
-    # pull the latest code from master branch
-    git pull 
+    git clone "repo-link-here"
     ```
 
 - set up environment variables
