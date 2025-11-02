@@ -56,7 +56,7 @@ class SqliteDatabase:
         try:
             with open('schema.json', 'r') as f:
                 data = json.load(f)
-            return data[table_name]
+                return data[table_name]
         except FileNotFoundError:
             raise FileNotFoundError("schema.json file not found")
         except KeyError:
