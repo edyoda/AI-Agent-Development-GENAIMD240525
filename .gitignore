@@ -3,3 +3,8 @@
 *.db
 .DS_Store
 */__pycache__/
+*/chroma_db/
+*.pyc
+*.egg-info/
+*/data/
+*.bak
